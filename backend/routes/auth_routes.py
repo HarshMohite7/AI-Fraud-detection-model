@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from backend.db.db_connection import get_db_connection
 import mysql.connector
 from flask_jwt_extended import create_access_token
-import hashlib
+from werkzeug.security import generate_password_hash, check_password_hash
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -27,12 +27,8 @@ def signup():
         if cursor.fetchone():
             return jsonify({"error": "Email already exists"}), 400
 
-        # Hash password (simple hash for demo, use bcrypt in production)
-        # Using simple string for now if previously implementation was simple, 
-        # but let's stick to what likely was there or a basic safe one.
-        # Assuming plain text or basic hash for compatibility with previous snippets if any.
-        # Let's use simple sha256 for now.
-        hashed_pw = hashlib.sha256(password.encode()).hexdigest()
+        # Hash password securely
+        hashed_pw = generate_password_hash(password)
 
         cursor.execute("INSERT INTO users (name, email, password_hash, role) VALUES (%s, %s, %s, 'Analyst')", (name, email, hashed_pw))
         conn.commit()
@@ -60,13 +56,12 @@ def login():
     cursor = conn.cursor(dictionary=True)
     try:
         # Allow login by name or email
-        hashed_pw = hashlib.sha256(password.encode()).hexdigest()
-        query = "SELECT * FROM users WHERE (email = %s OR name = %s) AND password_hash = %s"
-        cursor.execute(query, (username_or_email, username_or_email, hashed_pw))
+        query = "SELECT * FROM users WHERE email = %s OR name = %s"
+        cursor.execute(query, (username_or_email, username_or_email))
         user = cursor.fetchone()
 
-        if user:
-            access_token = create_access_token(identity=user['id'])
+        if user and check_password_hash(user['password_hash'], password):
+            access_token = create_access_token(identity=str(user['id']))
             return jsonify({
                 "message": "Login successful",
                 "access_token": access_token,

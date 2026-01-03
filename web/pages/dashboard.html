@@ -620,7 +620,7 @@
                     <div class="metric-info">
                         <h3>Total Volume</h3>
                         <div class="metric-value">
-                            $2.4M <span class="delta up">+12%</span>
+                            $<span id="total-volume">...</span> <span class="delta up">+12%</span>
                         </div>
                     </div>
                     <div class="metric-icon">
@@ -632,7 +632,7 @@
                     <div class="metric-info">
                         <h3>Fraud Detected</h3>
                         <div class="metric-value">
-                            482 <span class="delta down">-4%</span>
+                            <span id="fraud-count">...</span> <span class="delta down">-4%</span>
                         </div>
                     </div>
                     <div class="metric-icon">
@@ -642,9 +642,9 @@
 
                 <div class="metric-card">
                     <div class="metric-info">
-                        <h3>AI Risk Score</h3>
+                        <h3>Avg Risk Score</h3>
                         <div class="metric-value">
-                            14.2 <span class="delta up">Low</span>
+                            <span id="avg-risk">...</span> <span class="delta up">Low</span>
                         </div>
                     </div>
                     <div class="metric-icon">
@@ -656,7 +656,7 @@
                     <div class="metric-info">
                         <h3>Accuracy</h3>
                         <div class="metric-value">
-                            99.9% <span class="delta up">Optimum</span>
+                            <span id="accuracy">...</span>% <span class="delta up">Optimum</span>
                         </div>
                     </div>
                     <div class="metric-icon">
@@ -733,6 +733,32 @@
                     </div>
                 </div>
             </div>
+
+            <!-- RECENT TRANSACTIONS TABLE -->
+            <div
+                style="margin-top: 30px; background: var(--bg-card); border-radius: 24px; padding: 30px; border: 1px solid var(--border-color);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>Recent Transactions</h2>
+                    <button
+                        style="background: rgba(59, 130, 246, 0.1); color: var(--electric-blue); border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600;">VIEW
+                        ALL</button>
+                </div>
+                <table style="width: 100%; border-collapse: collapse; color: var(--text-muted); font-size: 13px;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid var(--border-color); text-align: left;">
+                            <th style="padding: 15px 10px; font-weight: 600; color: #fff;">ID</th>
+                            <th style="padding: 15px 10px; font-weight: 600; color: #fff;">DATE</th>
+                            <th style="padding: 15px 10px; font-weight: 600; color: #fff;">AMOUNT</th>
+                            <th style="padding: 15px 10px; font-weight: 600; color: #fff;">LOCATION</th>
+                            <th style="padding: 15px 10px; font-weight: 600; color: #fff;">STATUS</th>
+                            <th style="padding: 15px 10px; font-weight: 600; color: #fff;">RISK</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transaction-table-body">
+                        <!-- Rows injected via JS -->
+                    </tbody>
+                </table>
+            </div>
         </section>
     </div>
 
@@ -759,13 +785,73 @@
                 // Initials for avatar
                 const initials = data.name.split(" ").map(n => n[0]).join("").substring(0, 2).toUpperCase();
                 document.getElementById("user-avatar").textContent = initials;
+                // Fetch Stats
+                const statsRes = await fetch("/api/stats", {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                if (statsRes.ok) {
+                    const stats = await statsRes.json();
+                    document.getElementById("total-volume").textContent = stats.total_volume.toLocaleString();
+                    document.getElementById("fraud-count").textContent = stats.fraud_count;
+                    document.getElementById("avg-risk").textContent = stats.avg_risk_score;
+                    document.getElementById("accuracy").textContent = stats.accuracy;
+                }
+
+                // Fetch Recent Transactions
+                try {
+                    const txRes = await fetch("/api/transactions/recent", {
+                        headers: { "Authorization": `Bearer ${token}` }
+                    });
+                    if (txRes.ok) {
+                        const transactions = await txRes.json();
+                        console.log("Transactions loaded:", transactions); // Debugging
+
+                        const tbody = document.getElementById("transaction-table-body");
+                        tbody.innerHTML = "";
+
+                        if (transactions.length === 0) {
+                            tbody.innerHTML = "<tr><td colspan='6' style='text-align:center; padding: 20px;'>No recent transactions found</td></tr>";
+                        }
+
+                        transactions.forEach(tx => {
+                            const isFraud = tx.is_fraud;
+                            const statusColor = isFraud ? "var(--danger-glow)" : "var(--success-glow)";
+                            const statusText = isFraud ? "FRAUD" : "VERIFIED";
+
+                            // Handle currency string
+                            const amount = typeof tx.amount === 'number'
+                                ? tx.amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
+                                : `$${tx.amount}`;
+
+                            const row = `
+                                <tr style="border-bottom: 1px solid rgba(255,255,255,0.02); transition: background 0.2s;">
+                                    <td style="padding: 15px 10px;">#${tx.id}</td>
+                                    <td style="padding: 15px 10px;">${tx.timestamp}</td>
+                                    <td style="padding: 15px 10px; color: #fff; font-weight: 500;">${amount}</td>
+                                    <td style="padding: 15px 10px;">${tx.location}</td>
+                                    <td style="padding: 15px 10px;">
+                                        <span style="color: ${statusColor}; background: rgba(${isFraud ? '239, 68, 68' : '16, 185, 129'}, 0.1); padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700;">${statusText}</span>
+                                    </td>
+                                    <td style="padding: 15px 10px;">
+                                        <div style="width: 100%; background: rgba(255,255,255,0.1); height: 4px; border-radius: 2px; width: 60px;">
+                                            <div style="width: ${tx.risk_score}%; background: ${tx.risk_score > 80 ? 'var(--danger-glow)' : 'var(--electric-blue)'}; height: 100%; border-radius: 2px;"></div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            `;
+                            tbody.innerHTML += row;
+                        });
+                    } else {
+                        console.error("Failed to fetch transactions:", txRes.status);
+                    }
+                } catch (txErr) {
+                    console.error("Error loading transactions:", txErr);
+                }
             } else {
                 console.error("Failed to load profile");
-                // Optional: redirect to login if token is invalid
-                // window.location.href = "login.html";
             }
         } catch (err) {
-            console.error("Error fetching profile:", err);
+            console.error("Error fetching data:", err);
         }
     });
 </script>

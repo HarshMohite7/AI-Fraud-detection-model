@@ -4,10 +4,16 @@ from flask_jwt_extended import JWTManager
 import os
 from dotenv import load_dotenv
 
+import sys
+import os
+# Add the project root directory to the Python path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 # Import blueprints
 from backend.routes.auth_routes import auth_bp
 from backend.routes.user_routes import user_bp
 from backend.routes.profile_routes import profile_routes
+from backend.routes.dashboard_routes import dashboard_bp
 
 load_dotenv()
 
@@ -21,13 +27,13 @@ jwt = JWTManager(app)
 # Register Blueprints
 app.register_blueprint(auth_bp, url_prefix='/api')
 app.register_blueprint(user_bp, url_prefix='/api')
+app.register_blueprint(profile_routes)
+app.register_blueprint(dashboard_bp, url_prefix='/api')
 
 # Serve Static Files (Frontend)
 # Assuming 'web' is at the same level as 'backend'
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 WEB_DIR = os.path.join(BASE_DIR, '..', 'web')
-
-app.register_blueprint(profile_routes)
 
 
 @app.route('/')
