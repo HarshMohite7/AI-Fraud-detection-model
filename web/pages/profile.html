@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Settings | FraudShield</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-deep: #060813;
+            --bg-sidebar: #0a0e1a;
+            --bg-card: #10192d;
+            --primary-cyan: #00f0ff;
+            --electric-blue: #3b82f6;
+            --text-main: #f0f4ff;
+            --text-muted: #8b92b9;
+            --danger-glow: #ef4444;
+            --success-glow: #10b981;
+            --border-color: rgba(255, 255, 255, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* Sidebar Reuse */
+        .sidebar {
+            width: 260px;
+            background-color: var(--bg-sidebar);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0;
+        }
+
+        .brand {
+            padding: 0 25px 30px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand i {
+            font-size: 24px;
+            color: var(--primary-cyan);
+        }
+
+        .brand span {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .nav-menu {
+            list-style: none;
+            flex-grow: 1;
+        }
+
+        .nav-item {
+            padding: 12px 25px;
+            margin: 4px 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--primary-cyan);
+        }
+
+        .nav-item.active {
+            border-left: 3px solid var(--primary-cyan);
+        }
+
+        /* Main Content */
+        .main-wrapper {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .glow-bg {
+            position: fixed;
+            top: -100px;
+            right: -100px;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, transparent 70%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .content-area {
+            padding: 40px;
+        }
+
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+        .page-header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .page-header p {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .profile-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 800px;
+        }
+
+        .avatar-section {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .large-avatar {
+            width: 80px;
+            height: 80px;
+            background: var(--electric-blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: 700;
+            color: #fff;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        .form-group input {
+            width: 100%;
+            background: rgba(6, 8, 19, 0.6);
+            border: 1px solid var(--border-color);
+            padding: 12px 15px;
+            border-radius: 8px;
+            color: #fff;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            border-color: var(--primary-cyan);
+        }
+
+        .btn-save {
+            background: var(--primary-cyan);
+            color: #000;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-save:hover {
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+        }
+
+        #message {
+            margin-top: 15px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="glow-bg"></div>
+
+    <aside class="sidebar">
+        <div class="brand">
+            <i class="fas fa-shield-halved"></i>
+            <span>FraudShield</span>
+        </div>
+        <ul class="nav-menu">
+            <a href="dashboard.html" class="nav-item">
+                <i class="fas fa-th-large"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" class="nav-item active">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+            <a href="logout.html" class="nav-item" style="margin-top: auto; color: var(--danger-glow);">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </ul>
+    </aside>
+
+    <div class="main-wrapper">
+        <div class="content-area">
+            <div class="page-header">
+                <h1>Account Settings</h1>
+                <p>Manage your profile and security preferences</p>
+            </div>
+
+            <div class="profile-card">
+                <div class="avatar-section">
+                    <div class="large-avatar" id="avatar-display">JS</div>
+                    <div>
+                        <h3 id="display-name">J. Smith</h3>
+                        <p style="color: var(--text-muted); font-size: 13px;">Analyst Role</p>
+                    </div>
+                </div>
+
+                <form id="profileForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" id="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <input type="email" id="email" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>New Password (Optional)</label>
+                        <input type="password" id="password" placeholder="Leave blank to keep current">
+                    </div>
+
+                    <button type="submit" class="btn-save">Save Changes</button>
+                    <p id="message"></p>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            const token = localStorage.getItem("token");
+            if (!token) window.location.href = "login.html";
+
+            const nameInput = document.getElementById("name");
+            const emailInput = document.getElementById("email");
+            const displayAvatar = document.getElementById("avatar-display");
+            const displayName = document.getElementById("display-name");
+
+            // Fetch current data
+            try {
+                const res = await fetch("/api/profile", {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    nameInput.value = data.name;
+                    emailInput.value = data.email;
+                    displayName.textContent = data.name;
+                    displayAvatar.textContent = data.name.substring(0, 2).toUpperCase();
+                }
+            } catch (err) { console.error(err); }
+
+            // Handle Update
+            document.getElementById("profileForm").addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const btn = document.querySelector(".btn-save");
+                const msg = document.getElementById("message");
+
+                btn.disabled = true;
+                btn.textContent = "Saving...";
+                msg.textContent = "";
+
+                const payload = {
+                    name: nameInput.value,
+                    email: emailInput.value
+                };
+                if (document.getElementById("password").value) {
+                    payload.password = document.getElementById("password").value;
+                }
+
+                try {
+                    const res = await fetch("/api/profile", {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${token}`
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const data = await res.json();
+                    if (res.ok) {
+                        msg.style.color = "var(--success-glow)";
+                        msg.textContent = "Profile updated successfully!";
+                        displayName.textContent = nameInput.value;
+                        displayAvatar.textContent = nameInput.value.substring(0, 2).toUpperCase();
+                        document.getElementById("password").value = ""; // clear password
+                    } else {
+                        msg.style.color = "var(--danger-glow)";
+                        msg.textContent = data.error || "Update failed";
+                    }
+                } catch (err) {
+                    msg.style.color = "var(--danger-glow)";
+                    msg.textContent = "Network error";
+                } finally {
+                    btn.disabled = false;
+                    btn.textContent = "Save Changes";
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

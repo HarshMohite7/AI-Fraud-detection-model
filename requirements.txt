@@ -1,0 +1,10 @@
+flask
+gunicorn
+python-dotenv
+requests
+torch
+numpy
+pandas
+sqlalchemy
+mysql-connector-python
+flask-jwt-extended

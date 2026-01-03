@@ -1,0 +1,21 @@
+{
+    "definitions": {
+        "FundTransaction": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "timestamp": {
+                    "type": "string"
+                },
+                "sender": {
+                    "type": "string"
+                },
+                "receiver": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

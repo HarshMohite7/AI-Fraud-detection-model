@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Based Fraud Detection System</title>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-deep: #060813;
+            --bg-sidebar: #0a0e1a;
+            --bg-card: #10192d;
+            --primary-cyan: #00f0ff;
+            --electric-blue: #3b82f6;
+            --text-main: #f0f4ff;
+            --text-muted: #8b92b9;
+            --danger-glow: #ef4444;
+            --success-glow: #10b981;
+            --border-color: rgba(255, 255, 255, 0.05);
+            --glass-effect: rgba(16, 25, 45, 0.7);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+        }
+
+        /* --- Sidebar --- */
+        .sidebar {
+            width: 260px;
+            background-color: var(--bg-sidebar);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .brand {
+            padding: 0 25px 30px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand i {
+            font-size: 24px;
+            color: var(--primary-cyan);
+            filter: drop-shadow(0 0 5px var(--primary-cyan));
+        }
+
+        .brand span {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            background: linear-gradient(to right, #fff, var(--text-muted));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-menu {
+            list-style: none;
+            flex-grow: 1;
+        }
+
+        .nav-item {
+            padding: 12px 25px;
+            margin: 4px 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .nav-item i {
+            width: 20px;
+            font-size: 18px;
+        }
+
+        .nav-item span {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--primary-cyan);
+            box-shadow: inset 0 0 10px rgba(0, 240, 255, 0.05);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.15), transparent);
+            border-left: 3px solid var(--primary-cyan);
+        }
+
+        .sidebar-footer {
+            padding: 20px 25px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .ai-status {
+            background: rgba(0, 240, 255, 0.05);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 240, 255, 0.1);
+        }
+
+        .ai-status p {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--success-glow);
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--success-glow);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--success-glow);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.4;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        /* --- Main Content --- */
+        .main-wrapper {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        /* Background Glows */
+        .glow-bg {
+            position: fixed;
+            top: -100px;
+            right: -100px;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, transparent 70%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        header {
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(6, 8, 19, 0.8);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .header-title h1 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .search-bar {
+            position: relative;
+        }
+
+        .search-bar input {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 10px 15px 10px 40px;
+            border-radius: 10px;
+            color: #fff;
+            width: 250px;
+            font-size: 13px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .search-bar input:focus {
+            border-color: var(--electric-blue);
+            width: 300px;
+        }
+
+        .search-bar i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .profile-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 38px;
+            height: 38px;
+            background: var(--electric-blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* --- Dashboard Grid --- */
+        .content-area {
+            padding: 30px 40px;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: var(--bg-card);
+            padding: 25px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            transition: transform 0.3s ease, border-color 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(0, 240, 255, 0.3);
+        }
+
+        .metric-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, transparent 100%);
+            pointer-events: none;
+        }
+
+        .metric-info h3 {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 1.5px;
+            margin-bottom: 15px;
+        }
+
+        .metric-value {
+            font-size: 28px;
+            font-weight: 700;
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+        }
+
+        .delta {
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .delta.up {
+            color: var(--success-glow);
+        }
+
+        .delta.down {
+            color: var(--danger-glow);
+        }
+
+        .metric-icon {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            width: 40px;
+            height: 40px;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--electric-blue);
+        }
+
+        /* --- Charts and Alerts --- */
+        .dashboard-layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+        }
+
+        .chart-container {
+            background: var(--bg-card);
+            border-radius: 24px;
+            padding: 30px;
+            border: 1px solid var(--border-color);
+            min-height: 400px;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .chart-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .chart-placeholder {
+            width: 100%;
+            height: 300px;
+            background: linear-gradient(180deg, rgba(59, 130, 246, 0.05) 0%, transparent 100%);
+            border: 1px dashed rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        /* Visual placeholder for a line chart */
+        .line-art {
+            width: 80%;
+            height: 60%;
+            border-bottom: 2px solid var(--border-color);
+            border-left: 2px solid var(--border-color);
+            position: relative;
+        }
+
+        .line-art::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 40'%3E%3Cpath d='M0 35 Q 20 5 40 30 T 100 10' fill='none' stroke='%2300f0ff' stroke-width='2'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-size: cover;
+            filter: drop-shadow(0 0 5px var(--primary-cyan));
+        }
+
+        /* --- Alerts Panel --- */
+        .alerts-panel {
+            background: var(--bg-card);
+            border-radius: 24px;
+            padding: 30px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .alerts-panel h2 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alerts-panel h2 i {
+            color: var(--danger-glow);
+        }
+
+        .alert-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            overflow-y: auto;
+        }
+
+        .alert-item {
+            padding: 15px;
+            background: rgba(6, 8, 19, 0.4);
+            border-radius: 15px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .alert-item.critical {
+            border-left: 4px solid var(--danger-glow);
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.05);
+        }
+
+        .alert-item:hover {
+            border-color: var(--primary-cyan);
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .alert-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .alert-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .alert-time {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .alert-desc {
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .alert-footer {
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .risk-badge {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-glow);
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(59, 130, 246, 0.2);
+        }
+
+        /* --- Responsive --- */
+        @media (max-width: 1200px) {
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .dashboard-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+            }
+
+            .sidebar .nav-item span,
+            .sidebar .brand span,
+            .sidebar .ai-status {
+                display: none;
+            }
+
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="glow-bg"></div>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="brand">
+            <i class="fas fa-shield-halved"></i>
+            <span>FraudShield</span>
+        </div>
+
+        <ul class="nav-menu">
+            <a href="#" class="nav-item active">
+                <i class="fas fa-th-large"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-exchange-alt"></i>
+                <span>Transactions</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-bell"></i>
+                <span>Alerts</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-file-contract"></i>
+                <span>Reports</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-microchip"></i>
+                <span>AI Models</span>
+            </a>
+            <a href="profile.html" class="nav-item">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+            <a href="logout.html" class="nav-item" style="margin-top: auto; color: var(--danger-glow);">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </ul>
+
+        <div class="sidebar-footer">
+            <div class="ai-status">
+                <p>Engine Status</p>
+                <div class="status-indicator">
+                    <div class="dot"></div>
+                    Neural v4.2 Live
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-wrapper">
+        <header>
+            <div class="header-title">
+                <h1>AI Fraud Detection Center</h1>
+            </div>
+
+            <div class="header-actions">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search suspicious nodes...">
+                </div>
+                <div class="header-icons">
+                    <i class="far fa-calendar-alt" style="margin-right: 15px; color: var(--text-muted);"></i>
+                    <i class="far fa-question-circle" style="color: var(--text-muted);"></i>
+                </div>
+                <div class="profile-area">
+                    <div class="avatar" id="user-avatar">JS</div>
+                    <div class="user-info">
+                        <p style="font-size: 13px; font-weight: 600;" id="user-name">J. Smith</p>
+                        <p style="font-size: 10px; color: var(--primary-cyan);" id="user-role">Security Lead</p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <section class="content-area">
+            <!-- METRICS -->
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-info">
+                        <h3>Total Volume</h3>
+                        <div class="metric-value">
+                            $2.4M <span class="delta up">+12%</span>
+                        </div>
+                    </div>
+                    <div class="metric-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-info">
+                        <h3>Fraud Detected</h3>
+                        <div class="metric-value">
+                            482 <span class="delta down">-4%</span>
+                        </div>
+                    </div>
+                    <div class="metric-icon">
+                        <i class="fas fa-user-secret"></i>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-info">
+                        <h3>AI Risk Score</h3>
+                        <div class="metric-value">
+                            14.2 <span class="delta up">Low</span>
+                        </div>
+                    </div>
+                    <div class="metric-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-info">
+                        <h3>Accuracy</h3>
+                        <div class="metric-value">
+                            99.9% <span class="delta up">Optimum</span>
+                        </div>
+                    </div>
+                    <div class="metric-icon">
+                        <i class="fas fa-target-shot"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-layout">
+                <!-- CHART -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <div>
+                            <h2>Real-Time Anomaly Trends</h2>
+                            <p style="font-size: 12px; color: var(--text-muted);">Neural network analysis over last 24h
+                            </p>
+                        </div>
+                        <div class="chart-options">
+                            <i class="fas fa-ellipsis-v" style="color: var(--text-muted); cursor: pointer;"></i>
+                        </div>
+                    </div>
+                    <div class="chart-placeholder">
+                        <div class="line-art"></div>
+                        <p style="position: absolute; bottom: 40px; font-size: 11px; color: var(--text-muted);">AI
+                            confidence interval: 98.4%</p>
+                    </div>
+                </div>
+
+                <!-- ALERTS -->
+                <div class="alerts-panel">
+                    <h2><i class="fas fa-triangle-exclamation"></i> Live Alerts</h2>
+                    <div class="alert-list">
+                        <div class="alert-item critical">
+                            <div class="alert-header">
+                                <span class="alert-title">Suspicious Velocity</span>
+                                <span class="alert-time">2m ago</span>
+                            </div>
+                            <p class="alert-desc">Account USR-8812 shows 15 transactions in 40s across 3 geo-locations.
+                            </p>
+                            <div class="alert-footer">
+                                <span class="risk-badge">Risk: 94%</span>
+                                <button
+                                    style="background:none; border:none; color:var(--primary-cyan); font-size:11px; font-weight:700; cursor:pointer;">ACTION</button>
+                            </div>
+                        </div>
+
+                        <div class="alert-item">
+                            <div class="alert-header">
+                                <span class="alert-title">New Device Proxy</span>
+                                <span class="alert-time">15m ago</span>
+                            </div>
+                            <p class="alert-desc">Known malicious VPN detected for transaction #44012.</p>
+                            <div class="alert-footer">
+                                <span class="risk-badge" style="background:rgba(255, 165, 0, 0.1); color:orange;">Risk:
+                                    62%</span>
+                                <button
+                                    style="background:none; border:none; color:var(--primary-cyan); font-size:11px; font-weight:700; cursor:pointer;">REVIEW</button>
+                            </div>
+                        </div>
+
+                        <div class="alert-item">
+                            <div class="alert-header">
+                                <span class="alert-title">Metadata Mismatch</span>
+                                <span class="alert-time">1h ago</span>
+                            </div>
+                            <p class="alert-desc">Browser fingerprint mismatch for recurring payment profile.</p>
+                            <div class="alert-footer">
+                                <span class="risk-badge" style="background:rgba(128, 128, 128, 0.1); color:gray;">Risk:
+                                    31%</span>
+                                <button
+                                    style="background:none; border:none; color:var(--primary-cyan); font-size:11px; font-weight:700; cursor:pointer;">DISMISS</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+</body>
+<script>
+    document.addEventListener("DOMContentLoaded", async () => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            window.location.href = "login.html";
+            return;
+        }
+
+        try {
+            const res = await fetch("/api/profile", {
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                document.getElementById("user-name").textContent = data.name;
+                document.getElementById("user-role").textContent = data.role || "Analyst";
+                // Initials for avatar
+                const initials = data.name.split(" ").map(n => n[0]).join("").substring(0, 2).toUpperCase();
+                document.getElementById("user-avatar").textContent = initials;
+            } else {
+                console.error("Failed to load profile");
+                // Optional: redirect to login if token is invalid
+                // window.location.href = "login.html";
+            }
+        } catch (err) {
+            console.error("Error fetching profile:", err);
+        }
+    });
+</script>
+
+</html>

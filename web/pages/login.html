@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - FraudShield AI</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+</head>
+
+<body>
+    <div class="login-wrapper">
+        <div class="split-container">
+            <!-- Left Side: Brand & Visuals -->
+            <div class="brand-side">
+                <div class="brand-content">
+                    <a href="/"
+                        style="text-decoration: none; color: var(--primary); font-size: 1.8rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="font-size: 2.2rem;">◈</span> FraudShield
+                    </a>
+                </div>
+
+                <div class="brand-footer">
+                    <h2
+                        style="font-size: 2.5rem; line-height: 1.2; margin-bottom: 1rem; background: linear-gradient(to right, #fff, var(--primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                        Detect Fraud.<br>Secure Future.
+                    </h2>
+                    <p style="color: var(--text-muted); font-size: 1.1rem;">
+                        Advanced AI algorithms protecting your financial infrastructure in real-time.
+                    </p>
+                    <div style="margin-top: 2rem; display: flex; gap: 0.5rem;">
+                        <span style="height: 4px; width: 24px; background: var(--primary); border-radius: 2px;"></span>
+                        <span
+                            style="height: 4px; width: 8px; background: rgba(0, 240, 255, 0.3); border-radius: 2px;"></span>
+                        <span
+                            style="height: 4px; width: 8px; background: rgba(0, 240, 255, 0.3); border-radius: 2px;"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: Login Form -->
+            <div class="form-side">
+                <a href="/" class="back-btn">Back to website →</a>
+
+                <div style="margin-bottom: 2rem;">
+                    <h2 style="font-size: 2rem; margin-bottom: 0.5rem;">Welcome Back</h2>
+                    <p style="color: var(--text-muted);">
+                        Don't have an account? <a href="/pages/signup.html"
+                            style="color: var(--primary); text-decoration: none;">Sign up</a>
+                    </p>
+                </div>
+
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="username" style="font-size: 0.9rem; color: var(--text-muted);">Email or
+                            Username</label>
+                        <input type="text" id="username" name="username" placeholder="name@company.com" required
+                            style="background: transparent; border-color: rgba(255,255,255,0.1);">
+                    </div>
+
+                    <div class="form-group">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <label for="password"
+                                style="font-size: 0.9rem; color: var(--text-muted); margin: 0;">Password</label>
+                            <a href="#"
+                                style="font-size: 0.85rem; color: var(--text-muted); text-decoration: none;">Forgot?</a>
+                        </div>
+                        <input type="password" id="password" name="password" placeholder="Enter your password" required
+                            style="background: transparent; border-color: rgba(255,255,255,0.1);">
+                    </div>
+
+                    <div style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="checkbox" id="remember" style="width: auto; margin: 0;">
+                        <label for="remember" style="font-size: 0.9rem; color: var(--text-muted); margin: 0;">Remember
+                            for 30 days</label>
+                    </div>
+
+                    <button type="submit" class="btn" style="border-radius: 4px;">Log in</button>
+                    <p id="message"></p>
+                </form>
+
+                <div class="divider">Or log in with</div>
+
+                <div class="social-login">
+                    <button class="social-btn">
+                        <img src="https://www.svgrepo.com/show/475656/google-color.svg" width="20" alt="G"> Google
+                    </button>
+                    <button class="social-btn">
+                        <img src="https://www.svgrepo.com/show/448234/apple.svg" width="20" alt="A"
+                            style="filter: invert(1);"> Apple
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="../assets/js/login.js"></script>
+</body>
+
+<script>
+
+</script>

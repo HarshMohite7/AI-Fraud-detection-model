@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Signup | AI Fund Detection</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+
+<body>
+    <div class="login-wrapper">
+        <div class="split-container">
+            <!-- Left Side: Brand & Visuals -->
+            <div class="brand-side">
+                <div class="brand-content">
+                    <a href="/"
+                        style="text-decoration: none; color: var(--primary); font-size: 1.8rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="font-size: 2.2rem;">◈</span> FraudShield
+                    </a>
+                </div>
+
+                <div class="brand-footer">
+                    <h2
+                        style="font-size: 2.5rem; line-height: 1.2; margin-bottom: 1rem; background: linear-gradient(to right, #fff, var(--primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                        Join the<br>Defense Network.
+                    </h2>
+                    <p style="color: var(--text-muted); font-size: 1.1rem;">
+                        Create your analyst credentials and start monitoring financial streams today.
+                    </p>
+                    <div style="margin-top: 2rem; display: flex; gap: 0.5rem;">
+                        <span
+                            style="height: 4px; width: 8px; background: rgba(0, 240, 255, 0.3); border-radius: 2px;"></span>
+                        <span style="height: 4px; width: 24px; background: var(--primary); border-radius: 2px;"></span>
+                        <span
+                            style="height: 4px; width: 8px; background: rgba(0, 240, 255, 0.3); border-radius: 2px;"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: Signup Form -->
+            <div class="form-side">
+                <a href="/" class="back-btn">Back to website →</a>
+
+                <div style="margin-bottom: 2rem;">
+                    <h2 style="font-size: 2rem; margin-bottom: 0.5rem;">Create Account</h2>
+                    <p style="color: var(--text-muted);">
+                        Already have access? <a href="/pages/login.html"
+                            style="color: var(--primary); text-decoration: none;">Log in</a>
+                    </p>
+                </div>
+
+                <form id="signupForm">
+                    <div class="form-group">
+                        <label for="name" style="font-size: 0.9rem; color: var(--text-muted);">Full Name</label>
+                        <input type="text" id="name" placeholder="John Doe" required
+                            style="background: transparent; border-color: rgba(255,255,255,0.1);">
+                    </div>
+                    <div class="form-group">
+                        <label for="email" style="font-size: 0.9rem; color: var(--text-muted);">Email Address</label>
+                        <input type="email" id="email" placeholder="john@agency.gov" required
+                            style="background: transparent; border-color: rgba(255,255,255,0.1);">
+                    </div>
+                    <div class="form-group">
+                        <label for="password" style="font-size: 0.9rem; color: var(--text-muted);">Password</label>
+                        <input type="password" id="password" placeholder="Create a strong password" required
+                            style="background: transparent; border-color: rgba(255,255,255,0.1);">
+                    </div>
+
+                    <button type="submit" class="btn" style="border-radius: 4px; margin-top: 1rem;">Create
+                        Credentials</button>
+                </form>
+
+                <p id="message" style="margin-top: 1rem; font-size: 0.9rem;"></p>
+
+                <div class="divider">Or register with</div>
+
+                <div class="social-login" style="margin-top: 0;">
+                    <button class="social-btn">
+                        <img src="https://www.svgrepo.com/show/475656/google-color.svg" width="20" alt="G"> Google
+                    </button>
+                    <button class="social-btn">
+                        <img src="https://www.svgrepo.com/show/448234/apple.svg" width="20" alt="A"
+                            style="filter: invert(1);"> Apple
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/signup.js"></script>
+</body>
+<script>document.getElementById("signupForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const name = document.getElementById("name").value;
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+        const message = document.getElementById("message");
+
+        message.textContent = "Creating account...";
+        message.style.color = "black";
+
+        try {
+            const response = await fetch("/api/signup", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ name, email, password })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                message.textContent = data.error || "Signup failed";
+                message.style.color = "red";
+                return;
+            }
+
+            message.textContent = "Signup successful! Redirecting to login...";
+            message.style.color = "green";
+
+            setTimeout(() => {
+                window.location.href = "login.html";
+            }, 1500);
+
+        } catch (err) {
+            message.textContent = "Server error. Try again later.";
+            message.style.color = "red";
+        }
+    });
+</script>
+
+</html>
